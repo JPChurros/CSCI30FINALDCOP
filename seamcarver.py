@@ -33,43 +33,94 @@ class SeamCarver(Picture):
         Return a sequence of indices representing the lowest-energy
         vertical seam
         '''
-        arr = [[0] * self.width() for i in range(self.height)] #creates a 2dimensional array of size width and height!
+        energyArray = [[0] * self.width() for i in range(self.height)] #creates a 2dimensional energyArrayay of size width and height!
         #idk if this may -1 for the width and shit ah.
         for row in range(self.height()):
             for column in range(self.width()):
-                arr[row][column] = self.energy(row, column) #populates the 2dimensional array with the corresponding energy for each ano.
-        #array two
+                energyArray[row][column] = self.energy(row, column) #populates the 2dimensional energyArrayay with the corresponding energy for each ano.
+        #energyArrayay two
         
-        mincostarray = [[0] * self.width() for i in range(self.height)]
+        minCost = [[0] * self.width() for i in range(self.height)]
         #idk if this has -1 for the width or height bro
         for row in range(self.height()):
             for column in range(self.width()):
                 #edge case for pinakataas
                 if row == 0:
-                    mincostarray[0][column] = arr[0][column]
+                    minCost[0][column] = energyArray[0][column]
                 #edge case for left corner
                 if column == 0:
-                    OnTop = arr[row-1][column]
-                    TopRight = arr[row-1][column+1]
+                    OnTop = energyArray[row-1][column]
+                    TopRight = energyArray[row-1][column+1]
                     #determine the minimum and assign it
                     AssignedValue = min(OnTop, TopRight)
                 #edge case for right corner idk if may minus one dito
-                if column == self.width():
-                    OnTop = arr[row-1][column]
-                    TopLeft = arr[row-1][column-1]
+                elif column == self.width()-1:
+                    OnTop = energyArray[row-1][column]
+                    TopLeft = energyArray[row-1][column-1]
                     #determine the minimum and assign it
                     AssignedValue = min(OnTop, TopLeft)
 
                 #middle! , check first if assigned value has laman cuz if meron then its an edge case
                 if AssignedValue != 0:
-                    OnTop = arr[row-1][column]
-                    TopRight = arr[row-1][column+1]
-                    TopLeft = arr[row-1][column-1]
+                    OnTop = energyArray[row-1][column]
+                    TopRight = energyArray[row-1][column+1]
+                    TopLeft = energyArray[row-1][column-1]
                     AssignedValue = min(OnTop, TopRight, TopLeft)
                 
-                mincostarray[row][column] = AssignedValue + arr[row][column]
-
+                minCost[row][column] = AssignedValue + energyArray[row][column]
                 AssignedValue = 0
+
+        # this part gets the index of the smallest value sa last row sa minCost 2d array
+        lastRow = [0]*self.width()
+        rowCounter = 0
+        while rowCounter < self.width():
+            lastRow[rowCounter] = minCost[self.height()-1][rowCounter]
+            rowCounter += 1
+        startingPoint = lastRow.index(min(lastRow))
+
+        # this "instantiates" the seam list, and then i decided to add na agad the startingPoint variable sa last element ng list
+        seam = [0]*self.height()
+        seam[self.height()-1] = startingPoint
+        # similar logic to what you guys worked with, it ends at row 0 
+        for row in range(self.height()-2, -1, -1):
+            indexOfColumnBelow = seam[row+1]
+            smallestValue = 0
+
+            #mid right and left are just essentially OnTop, TopRight, TopLeft, respectively.
+            #indexOfColumnBelow is just referring to index of seam below
+            if indexOfColumnBelow == 0:
+                mid = energyArray[row][indexOfColumnBelow]
+                right = energyArray[row][indexOfColumnBelow + 1]
+                smallestValue = min(mid, right)
+                if smallestValue == mid:
+                    seam[row] = indexOfColumnBelow
+                else:
+                    seam[row] = indexOfColumnBelow + 1
+
+            elif indexOfColumnBelow == self.width()-1:
+                mid = energyArray[row][indexOfColumnBelow]
+                left = energyArray[row][indexOfColumnBelow - 1]
+                smallestValue = min(mid, left)
+                if smallestValue == mid:
+                    seam[row] = indexOfColumnBelow
+                else:
+                    seam[row] = indexOfColumnBelow - 1
+            
+            else:
+                mid = energyArray[row][indexOfColumnBelow]
+                right = energyArray[row][indexOfColumnBelow+1]
+                left = energyArray[row][indexOfColumnBelow-1]
+                smallestValue = min(mid, right, left)
+                if smallestValue == mid:
+                    seam[row] = indexOfColumnBelow
+                elif smallestValue == right:
+                    seam[row] = indexOfColumnBelow + 1
+                else:
+                    seam[row] = indexOfColumnBelow - 1
+
+
+        
+
         raise NotImplementedError
 
     def find_horizontal_seam(self) -> list[int]:
