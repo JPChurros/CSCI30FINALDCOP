@@ -67,7 +67,7 @@ class SeamCarver(Picture):
                     TopLeft = arr[row-1][column-1]
                     AssignedValue = min(OnTop, TopRight, TopLeft)
                 
-                mincostarray[row][column] = AssignedValue
+                mincostarray[row][column] = AssignedValue + arr[row][column]
 
                 AssignedValue = 0
         raise NotImplementedError
