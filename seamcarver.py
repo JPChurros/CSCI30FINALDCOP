@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+import numpy as np
 from picture import Picture
 
 class SeamCarver(Picture):
@@ -28,14 +28,48 @@ class SeamCarver(Picture):
 
         raise NotImplementedError
 
-    def find_vertical_seam(self) -> list[int]:
+    def find_vertical_seam(self) -> list[int]: #Note, idk sometimes when to subtract one to set the size
         '''
         Return a sequence of indices representing the lowest-energy
         vertical seam
         '''
-        M = [[0 for columns in range(self.height())] for rows in range(self.width())]
-        for element in range(self.width()):
-            M[0][element] = self.energy(element, 0)
+        arr = [[0] * self.width() for i in range(self.height)] #creates a 2dimensional array of size width and height!
+        #idk if this may -1 for the width and shit ah.
+        for row in range(self.height()):
+            for column in range(self.width()):
+                arr[row][column] = self.energy(row, column) #populates the 2dimensional array with the corresponding energy for each ano.
+        #array two
+        
+        mincostarray = [[0] * self.width() for i in range(self.height)]
+        #idk if this has -1 for the width or height bro
+        for row in range(self.height()):
+            for column in range(self.width()):
+                #edge case for pinakataas
+                if row == 0:
+                    mincostarray[0][column] = arr[0][column]
+                #edge case for left corner
+                if column == 0:
+                    OnTop = arr[row-1][column]
+                    TopRight = arr[row-1][column+1]
+                    #determine the minimum and assign it
+                    AssignedValue = min(OnTop, TopRight)
+                #edge case for right corner idk if may minus one dito
+                if column == self.width():
+                    OnTop = arr[row-1][column]
+                    TopLeft = arr[row-1][column-1]
+                    #determine the minimum and assign it
+                    AssignedValue = min(OnTop, TopLeft)
+
+                #middle! , check first if assigned value has laman cuz if meron then its an edge case
+                if AssignedValue != 0:
+                    OnTop = arr[row-1][column]
+                    TopRight = arr[row-1][column+1]
+                    TopLeft = arr[row-1][column-1]
+                    AssignedValue = min(OnTop, TopRight, TopLeft)
+                
+                mincostarray[row][column] = AssignedValue
+
+                AssignedValue = 0
         raise NotImplementedError
 
     def find_horizontal_seam(self) -> list[int]:
