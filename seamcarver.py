@@ -192,12 +192,22 @@ class SeamCarver(Picture):
         '''
         Remove a vertical seam from the picture
         '''
+        for x, y in seam:
+            for row in range(x, self.width()-1):
+                self.update((row, y), self.get((row+1, y)))
+            self.pop((self.width()-1, y))
+
         raise NotImplementedError
 
     def remove_horizontal_seam(self, seam: list[int]):
         '''
         Remove a horizontal seam from the picture
         '''
+        for x, y in seam:
+            for col in range(y, self.height()-1):
+                self.update((x, col), self.get((x, col+1)))
+            self.pop((x, self.height()-1))
+
         raise NotImplementedError
 
 class SeamError(Exception):
