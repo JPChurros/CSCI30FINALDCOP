@@ -75,11 +75,11 @@ class SeamCarver(Picture):
                     AssignedValue = min(OnTop, TopLeft)
 
                 #middle! , check first if assigned value has laman cuz if meron then its an edge case
-                if AssignedValue != 0:
+                if AssignedValue == 0:
                     OnTop = energyArray[row-1][column]
                     TopRight = energyArray[row-1][column+1]
                     TopLeft = energyArray[row-1][column-1]
-                    AssignedValue = min(OnTop, TopRight, TopLeft)
+                    AssignedValue = min(OnTop, TopRight, TopLeft)   
                 
                 minCost[row][column] = AssignedValue + energyArray[row][column]
                 AssignedValue = 0
@@ -107,18 +107,18 @@ class SeamCarver(Picture):
                 right = minCost[row][indexOfSeamBelow + 1]
                 smallestValue = min(mid, right)
                 if smallestValue == mid:
-                    seam.append(row, indexOfSeamBelow)
+                    seam.append((row, indexOfSeamBelow))
                 else:
-                    seam.append(row, indexOfSeamBelow+1)
+                    seam.append((row, indexOfSeamBelow+1))
 
             elif indexOfSeamBelow == self.width()-1:
                 mid = minCost[row][indexOfSeamBelow]
                 left = minCost[row][indexOfSeamBelow - 1]
                 smallestValue = min(mid, left)
                 if smallestValue == mid:
-                    seam.append(row, indexOfSeamBelow)
+                    seam.append((row, indexOfSeamBelow))
                 else:
-                    seam.append(row, indexOfSeamBelow - 1)
+                    seam.append((row, indexOfSeamBelow - 1))
             
             else:
                 mid = minCost[row][indexOfSeamBelow]
@@ -126,11 +126,11 @@ class SeamCarver(Picture):
                 left = minCost[row][indexOfSeamBelow-1]
                 smallestValue = min(mid, right, left)
                 if smallestValue == mid:
-                    seam.append(row, indexOfSeamBelow)
+                    seam.append((row, indexOfSeamBelow))
                 elif smallestValue == right:
-                    seam.append(row, indexOfSeamBelow + 1)
+                    seam.append((row, indexOfSeamBelow + 1))
                 else:
-                    seam.append(row, indexOfSeamBelow - 1)
+                    seam.append((row, indexOfSeamBelow - 1))
 
         return seam.reverse()
 
