@@ -61,29 +61,36 @@ class SeamCarver(Picture):
                 #edge case for pinakataas
                 if row == 0:
                     minCost[0][column] = energyArray[0][column]
-                #edge case for left corner
-                if column == 0:
-                    OnTop = energyArray[row-1][column]
-                    TopRight = energyArray[row-1][column+1]
-                    #determine the minimum and assign it
-                    AssignedValue = min(OnTop, TopRight)
-                #edge case for right corner idk if may minus one dito
-                elif column == self.width()-1:
-                    OnTop = energyArray[row-1][column]
-                    TopLeft = energyArray[row-1][column-1]
-                    #determine the minimum and assign it
-                    AssignedValue = min(OnTop, TopLeft)
+                else:
+                    #edge case for left corner
+                    if column == 0:
+                        OnTop = energyArray[row-1][column]
+                        TopRight = energyArray[row-1][column+1]
+                        #determine the minimum and assign it
+                        minCost[row][column] = energyArray[row][column] + min(OnTop, TopRight)
+                    #edge case for right corner idk if may minus one dito
+                    elif column == self.width()-1:
+                        OnTop = energyArray[row-1][column]
+                        TopLeft = energyArray[row-1][column-1]
+                        #determine the minimum and assign it
+                        minCost[row][column] = energyArray[row][column] + min(OnTop, TopLeft)
+                    else:
+                        OnTop = energyArray[row-1][column]
+                        TopRight = energyArray[row-1][column+1]
+                        TopLeft = energyArray[row-1][column-1]
+                        minCost[row][column] = energyArray[row][column] + min(OnTop,TopRight,TopLeft)
 
-                #middle! , check first if assigned value has laman cuz if meron then its an edge case
-                if AssignedValue == 0:
-                    OnTop = energyArray[row-1][column]
-                    TopRight = energyArray[row-1][column+1]
-                    TopLeft = energyArray[row-1][column-1]
-                    AssignedValue = min(OnTop, TopRight, TopLeft)   
+                # #middle! , check first if assigned value has laman cuz if meron then its an edge case
+                # if AssignedValue == 0:
+                #     OnTop = energyArray[row-1][column]
+                #     TopRight = energyArray[row-1][column+1]
+                #     TopLeft = energyArray[row-1][column-1]
+                #     AssignedValue = min(OnTop, TopRight, TopLeft)   
                 
-                minCost[row][column] = AssignedValue + energyArray[row][column]
-                AssignedValue = 0
-
+                # minCost[row][column] = AssignedValue + energyArray[row][column]
+        print ("MinCostarray:")
+        for row in minCost:
+            print (row)
         # this part gets the index of the smallest value sa last row sa minCost 2d array
         lastRow = [0]*self.width()
         rowCounter = 0
@@ -94,10 +101,10 @@ class SeamCarver(Picture):
 
         # this "instantiates" the seam list, and then i decided to add na agad the startingPoint variable sa last element ng list
 
-        seam = [(self.height()-1, startingPoint)]
+        seam = [startingPoint]
         # similar logic to what you guys worked with, it ends at row 0 
         for row in range(self.height()-2, -1, -1):
-            indexOfSeamBelow = seam[-1][1]
+            indexOfSeamBelow = seam[-1]
             smallestValue = 0
 
             #mid right and left are just essentially OnTop, TopRight, TopLeft, respectively.
@@ -107,18 +114,18 @@ class SeamCarver(Picture):
                 right = minCost[row][indexOfSeamBelow + 1]
                 smallestValue = min(mid, right)
                 if smallestValue == mid:
-                    seam.append((row, indexOfSeamBelow))
+                    seam.append(indexOfSeamBelow)
                 else:
-                    seam.append((row, indexOfSeamBelow+1))
+                    seam.append(indexOfSeamBelow+1)
 
             elif indexOfSeamBelow == self.width()-1:
                 mid = minCost[row][indexOfSeamBelow]
                 left = minCost[row][indexOfSeamBelow - 1]
                 smallestValue = min(mid, left)
                 if smallestValue == mid:
-                    seam.append((row, indexOfSeamBelow))
+                    seam.append(indexOfSeamBelow)
                 else:
-                    seam.append((row, indexOfSeamBelow - 1))
+                    seam.append(indexOfSeamBelow - 1)
             
             else:
                 mid = minCost[row][indexOfSeamBelow]
@@ -126,13 +133,14 @@ class SeamCarver(Picture):
                 left = minCost[row][indexOfSeamBelow-1]
                 smallestValue = min(mid, right, left)
                 if smallestValue == mid:
-                    seam.append((row, indexOfSeamBelow))
+                    seam.append(indexOfSeamBelow)
                 elif smallestValue == right:
-                    seam.append((row, indexOfSeamBelow + 1))
+                    seam.append(indexOfSeamBelow + 1)
                 else:
-                    seam.append((row, indexOfSeamBelow - 1))
+                    seam.append(indexOfSeamBelow - 1)
 
-        return seam.reverse()
+        seam.reverse()
+        return seam
 
         raise NotImplementedError
 
