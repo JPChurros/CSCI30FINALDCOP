@@ -7,6 +7,9 @@ class SeamCarver(Picture):
         '''
         Return the energy of pixel at column i and row j
         '''
+        if i < 0 or i >= self.width() or j < 0 or j >= self.height():
+            raise IndexError("Pixel is out of bounds.")
+
         if i-1 < 0: 
             left_pixel = self[self.width()-1,j]
             right_pixel = self[i+1,j]
@@ -16,7 +19,6 @@ class SeamCarver(Picture):
         else:
             left_pixel = self[i-1,j]
             right_pixel = self[i+1,j]
-
 
         if j-1 < 0:            
             top_pixel = self[i,self.height()-1]
@@ -39,8 +41,6 @@ class SeamCarver(Picture):
         y_Delta = y_Red**2 + y_Green**2 + y_Blue**2
 
         return (x_Delta + y_Delta)**0.5
-
-        raise NotImplementedError
 
     def find_vertical_seam(self) -> list[int]: #Note, idk sometimes when to subtract one to set the size
         '''
@@ -88,9 +88,6 @@ class SeamCarver(Picture):
                 #     AssignedValue = min(OnTop, TopRight, TopLeft)   
                 
                 # minCost[row][column] = AssignedValue + energyArray[row][column]
-        print ("MinCostarray:")
-        for row in minCost:
-            print (row)
         # this part gets the index of the smallest value sa last row sa minCost 2d array
         lastRow = [0]*self.width()
         rowCounter = 0
@@ -173,15 +170,15 @@ class SeamCarver(Picture):
         #2 transpose the 2dimensional array
         n = len(origArray)
         for i in range(n):
-            for j in range(1 + 1, n):
-                origArray[i, j], origArray[j, i] = origArray[j][i], origArray[i, j]
+            for j in range(i + 1, n):
+                origArray[i][j], origArray[j][i] = origArray[j][i], origArray[i][j]
         #orig array has now been transposed
 
         #3 turn it back into a dictionary
         transposedDictionary = Picture(self)
         for row in range(width):
             for column in range(height):
-                transposedDictionary[row, column] = origArray[row][column]
+                transposedDictionary[column, row] = origArray[row][column]
         #4 call variable.findverticalseam
         seam = transposedDictionary.find_vertical_seam()
         #5 ? is there even a need to transpose the final seam
@@ -194,12 +191,22 @@ class SeamCarver(Picture):
         '''
         Remove a vertical seam from the picture
         '''
-        for x, y in seam:
-            for row in range(x, self.width()-1):
-                self.update((row, y), self.get((row+1, y)))
-            self.pop((self.width()-1, y))
+        if self.width() == 1:
+            raise SeamError("Cannot remove vertical seam. Image only has a width of 1.")
+        elif len(seam) != self.height():
+            raise SeamError("Invalid seam length.")
+        for element in range(len(seam)-1):
+            difference = abs(seam[element] - seam[element+1])
+            if difference > 1:
+                raise SeamError("Invalid seam.") 
 
-        raise NotImplementedError
+        for row in range(self.height()):
+            seamColumn = seam[row]
+            for column in range(seamColumn, self.width()-1):
+                self[column, row] = self[column+1, row]
+            del self[self.width()-1, row]
+        self._width -= 1
+        
 
     def remove_horizontal_seam(self, seam: list[int]):
         '''
