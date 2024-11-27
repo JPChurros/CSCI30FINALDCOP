@@ -64,20 +64,20 @@ class SeamCarver(Picture):
                 else:
                     #edge case for left corner
                     if column == 0:
-                        OnTop = energyArray[row-1][column]
-                        TopRight = energyArray[row-1][column+1]
+                        OnTop = minCost[row-1][column]
+                        TopRight = minCost[row-1][column+1]
                         #determine the minimum and assign it
                         minCost[row][column] = energyArray[row][column] + min(OnTop, TopRight)
                     #edge case for right corner idk if may minus one dito
                     elif column == self.width()-1:
-                        OnTop = energyArray[row-1][column]
-                        TopLeft = energyArray[row-1][column-1]
+                        OnTop = minCost[row-1][column]
+                        TopLeft = minCost[row-1][column-1]
                         #determine the minimum and assign it
                         minCost[row][column] = energyArray[row][column] + min(OnTop, TopLeft)
                     else:
-                        OnTop = energyArray[row-1][column]
-                        TopRight = energyArray[row-1][column+1]
-                        TopLeft = energyArray[row-1][column-1]
+                        OnTop = minCost[row-1][column]
+                        TopRight = minCost[row-1][column+1]
+                        TopLeft = minCost[row-1][column-1]
                         minCost[row][column] = energyArray[row][column] + min(OnTop,TopRight,TopLeft)
 
                 # #middle! , check first if assigned value has laman cuz if meron then its an edge case
