@@ -127,100 +127,45 @@ class SeamCarver(Picture):
         Return a sequence of indices representing the lowest-energy
         horizontal seam
         '''
-        energyArray = [[0] * self.width() for i in range(self.height)] #creates a 2dimensional energyArrayay of size width and height!
-        #idk if this may -1 for the width and shit ah.
-        for row in range(self.height()):
-            for column in range(self.width()):
-                energyArray[row][column] = self.energy(row, column) #populates the 2dimensional energyArrayay with the corresponding energy for each ano.
-        #create a 2d array that consists of the energy of each element
+        #Steps:
+        #1 get original picture's dictionary
+        #2 transpose
+        #3 turn it back into a dictionary so it can be used ulit for picture
+        #4 call variable.findverticalseam()
+        #5 transpose the final list
+        # :D
 
-        #create 2d array numero two that consists of mincost of top 3 elements
-        #initialize mincost to have appropriate size
-        minCost = [[0] * self.width() for i in range(self.height)]
+        #1, i wanna get the orig dictionary and turn it into a 2d array so its easier to transpose.
+        pictureObject = Picture(self)
+        origDictionary = pictureObject #now we have the orig dictionary
+        width = origDictionary.width()
+        height = origDictionary.height()
 
-        #rearranged column to row so it populates by column instead of by row copared ot horiz seam
-        for column in range(self.width()):
-            for row in range(self.height()):
-                #edge case for left wall
-                if column == 0:
-                    minCost[row][0] = energyArray[row][0]
-                #edge case for top wall
-                if row == 0:
-                    Left = energyArray[row][column-1]
-                    BottomLeft = energyArray[row+1][column-1]
-                    #determine the minimum and assign it
-                    AssignedValue = min(Left, BottomLeft)
-                #edge case for bottomwall
-                elif row == self.height()-1:
-                    Left = energyArray[row][column-1]
-                    TopLeft = energyArray[row-1][column-1]
-                    #determine the minimum and assign it
-                    AssignedValue = min(Left, TopLeft)
+        #turn into 2d array
+        origArray = [[0] * width for _ in range(height)]
+        for row in range(height):
+            for column in range(width):
+                #if(row, column) in origDictionary:
+                origArray[row][column] = origDictionary[row, column]
+        
+        #2 transpose the 2dimensional array
+        n = len(origArray)
+        for i in range(n):
+            for j in range(1 + 1, n):
+                origArray[i, j], origArray[j, i] = origArray[j][i], origArray[i, j]
+        #orig array has now been transposed
 
-                #middle! , check first if assigned value has laman cuz if meron then its an edge case
-                if AssignedValue != 0:
-                    Left = energyArray[row][column-1]
-                    TopLeft = energyArray[row-1][column-1]
-                    BottomLeft = energyArray[row+1][column-1]
-                    AssignedValue = min(Left, BottomLeft, TopLeft)
-                
-                minCost[row][column] = AssignedValue + energyArray[row][column]
-
-                AssignedValue = 0
-
-         # this part gets the index of the smallest value sa last column sa minCost 2d array
-        lastColumn = [0]*self.height()
-        columnCounter = 0
-        while columnCounter < self.height():
-            lastColumn[columnCounter] = minCost[columnCounter][self.width()-1] #for each at the pinakaright we get add them to lastcolumn list
-            columnCounter += 1
-        startingPoint = lastColumn.index(min(lastColumn))
-
-         
-        # this "instantiates" the seam list, and then i decided to add na agad the startingPoint variable sa last element ng list
-        seam = [0]*self.width()
-        seam[self.width()-1] = startingPoint
-        # similar logic to what you guys worked with, it ends at row 0 
-        #IDG HOW THIS FOR LOOP WORKS THERES PROBABLY AN ERROR HERE >>>>>>>>>>>>>>>>>>>
-        for column in range(self.width()-2, -1, -1):
-        #need to fix laman ng for loop na to
-            indexOfSeamToTheRight = seam[column+1]
-            smallestValue = 0
-
-            #mid right and left are just essentially OnTop, TopRight, TopLeft, respectively.
-            #indexOfSeamToTheRight is just referring to index of seam below
-            if indexOfSeamToTheRight == 0:
-                mid = minCost[indexOfSeamToTheRight][column]
-                down = minCost[indexOfSeamToTheRight + 1][column]
-                smallestValue = min(mid, down)
-                if smallestValue == mid:
-                    seam[column] = indexOfSeamToTheRight
-                else:
-                    seam[column] = indexOfSeamToTheRight + 1
-
-            elif indexOfSeamToTheRight == self.height()-1:
-                mid = minCost[indexOfSeamToTheRight][column]
-                up = minCost[indexOfSeamToTheRight - 1][column]
-                smallestValue = min(mid, up)
-                if smallestValue == mid:
-                    seam[column] = indexOfSeamToTheRight
-                else:
-                    seam[column] = indexOfSeamToTheRight - 1
-            
-            else:
-                mid = minCost[indexOfSeamToTheRight][column]
-                up = minCost[indexOfSeamToTheRight - 1][column]
-                down = minCost[indexOfSeamToTheRight + 1][column]
-                smallestValue = min(mid, up, down)
-                if smallestValue == mid:
-                    seam[column] = indexOfSeamToTheRight
-                elif smallestValue == up:
-                    seam[column] = indexOfSeamToTheRight - 1
-                else:
-                    seam[column] = indexOfSeamToTheRight + 1
-
+        #3 turn it back into a dictionary
+        transposedDictionary = Picture(self)
+        for row in range(width):
+            for column in range(height):
+                transposedDictionary[row, column] = origArray[row][column]
+        #4 call variable.findverticalseam
+        seam = transposedDictionary.find_vertical_seam()
+        #5 ? is there even a need to transpose the final seam
         return seam
 
+        transposedPic = Picture()
         raise NotImplementedError
 
     def remove_vertical_seam(self, seam: list[int]):
