@@ -38,7 +38,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="C:\Users\justi\OneDrive\Desktop\School\ADMU\2nd Year\1st Sem\CSCI 30\Final Project\seamcarving_files\seamcarvingenv"
+VIRTUAL_ENV="C:\Users\justi\OneDrive\Documents\GitHub\CSCI30FINALDCOP\seamcarvingenv"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import numpy as np
 from picture import Picture
 
 class SeamCarver(Picture):
@@ -8,11 +7,26 @@ class SeamCarver(Picture):
         '''
         Return the energy of pixel at column i and row j
         '''
-        left_pixel = [self.width()-1,j] if i-1<0 else self[i-1,j]
-        right_pixel = [0,j] if i+1>=self.width() else self[i+1,j]
+        if i-1 < 0: 
+            left_pixel = self[self.width()-1,j]
+            right_pixel = self[i+1,j]
+        elif i+1 >= self.width():
+            left_pixel = self[i-1,j]
+            right_pixel = self[0,j]
+        else:
+            left_pixel = self[i-1,j]
+            right_pixel = self[i+1,j]
 
-        top_pixel = [i,self.height()-1] if j-1<0 else self[i,j-1]
-        bottom_pixel = [i,0] if j+1>=self.height() else self[i,j+1]
+
+        if j-1 < 0:            
+            top_pixel = self[i,self.height()-1]
+            bottom_pixel = self[i,j+1]
+        elif j+1 >= self.height():
+            top_pixel = self[i,j-1]
+            bottom_pixel = self[i,0]
+        else:
+            top_pixel = self[i,j-1]
+            bottom_pixel = self[i,j+1]
 
         x_Red = abs(left_pixel[0]-right_pixel[0])
         x_Green = abs(left_pixel[1]-right_pixel[1])
