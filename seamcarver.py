@@ -93,11 +93,11 @@ class SeamCarver(Picture):
         startingPoint = lastRow.index(min(lastRow))
 
         # this "instantiates" the seam list, and then i decided to add na agad the startingPoint variable sa last element ng list
-        seam = [0]*self.height()
-        seam[self.height()-1] = startingPoint
+
+        seam = [(self.height()-1, startingPoint)]
         # similar logic to what you guys worked with, it ends at row 0 
         for row in range(self.height()-2, -1, -1):
-            indexOfSeamBelow = seam[row+1]
+            indexOfSeamBelow = seam[-1][1]
             smallestValue = 0
 
             #mid right and left are just essentially OnTop, TopRight, TopLeft, respectively.
@@ -107,18 +107,18 @@ class SeamCarver(Picture):
                 right = minCost[row][indexOfSeamBelow + 1]
                 smallestValue = min(mid, right)
                 if smallestValue == mid:
-                    seam[row] = indexOfSeamBelow
+                    seam.append(row, indexOfSeamBelow)
                 else:
-                    seam[row] = indexOfSeamBelow + 1
+                    seam.append(row, indexOfSeamBelow+1)
 
             elif indexOfSeamBelow == self.width()-1:
                 mid = minCost[row][indexOfSeamBelow]
                 left = minCost[row][indexOfSeamBelow - 1]
                 smallestValue = min(mid, left)
                 if smallestValue == mid:
-                    seam[row] = indexOfSeamBelow
+                    seam.append(row, indexOfSeamBelow)
                 else:
-                    seam[row] = indexOfSeamBelow - 1
+                    seam.append(row, indexOfSeamBelow - 1)
             
             else:
                 mid = minCost[row][indexOfSeamBelow]
@@ -126,13 +126,13 @@ class SeamCarver(Picture):
                 left = minCost[row][indexOfSeamBelow-1]
                 smallestValue = min(mid, right, left)
                 if smallestValue == mid:
-                    seam[row] = indexOfSeamBelow
+                    seam.append(row, indexOfSeamBelow)
                 elif smallestValue == right:
-                    seam[row] = indexOfSeamBelow + 1
+                    seam.append(row, indexOfSeamBelow + 1)
                 else:
-                    seam[row] = indexOfSeamBelow - 1
+                    seam.append(row, indexOfSeamBelow - 1)
 
-        return seam
+        return seam.reverse()
 
         raise NotImplementedError
 
