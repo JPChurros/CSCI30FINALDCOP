@@ -47,14 +47,14 @@ class SeamCarver(Picture):
         Return a sequence of indices representing the lowest-energy
         vertical seam
         '''
-        energyArray = [[0] * self.width() for i in range(self.height)] #creates a 2dimensional energyArrayay of size width and height!
+        energyArray = [[0] * self.width() for i in range(self.height())] #creates a 2dimensional energyArrayay of size width and height!
         #idk if this may -1 for the width and shit ah.
         for row in range(self.height()):
             for column in range(self.width()):
-                energyArray[row][column] = self.energy(row, column) #populates the 2dimensional energyArrayay with the corresponding energy for each ano.
+                energyArray[row][column] = self.energy(column, row) #populates the 2dimensional energyArrayay with the corresponding energy for each ano.
         #energyArrayay two
         
-        minCost = [[0] * self.width() for i in range(self.height)]
+        minCost = [[0] * self.width() for i in range(self.height())]
         #idk if this has -1 for the width or height bro
         for row in range(self.height()):
             for column in range(self.width()):
