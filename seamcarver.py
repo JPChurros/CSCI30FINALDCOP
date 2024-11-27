@@ -83,40 +83,40 @@ class SeamCarver(Picture):
         seam[self.height()-1] = startingPoint
         # similar logic to what you guys worked with, it ends at row 0 
         for row in range(self.height()-2, -1, -1):
-            indexOfColumnBelow = seam[row+1]
+            indexOfSeamBelow = seam[row+1]
             smallestValue = 0
 
             #mid right and left are just essentially OnTop, TopRight, TopLeft, respectively.
-            #indexOfColumnBelow is just referring to index of seam below
-            if indexOfColumnBelow == 0:
-                mid = energyArray[row][indexOfColumnBelow]
-                right = energyArray[row][indexOfColumnBelow + 1]
+            #indexOfSeamBelow is just referring to index of seam below
+            if indexOfSeamBelow == 0:
+                mid = minCost[row][indexOfSeamBelow]
+                right = minCost[row][indexOfSeamBelow + 1]
                 smallestValue = min(mid, right)
                 if smallestValue == mid:
-                    seam[row] = indexOfColumnBelow
+                    seam[row] = indexOfSeamBelow
                 else:
-                    seam[row] = indexOfColumnBelow + 1
+                    seam[row] = indexOfSeamBelow + 1
 
-            elif indexOfColumnBelow == self.width()-1:
-                mid = energyArray[row][indexOfColumnBelow]
-                left = energyArray[row][indexOfColumnBelow - 1]
+            elif indexOfSeamBelow == self.width()-1:
+                mid = minCost[row][indexOfSeamBelow]
+                left = minCost[row][indexOfSeamBelow - 1]
                 smallestValue = min(mid, left)
                 if smallestValue == mid:
-                    seam[row] = indexOfColumnBelow
+                    seam[row] = indexOfSeamBelow
                 else:
-                    seam[row] = indexOfColumnBelow - 1
+                    seam[row] = indexOfSeamBelow - 1
             
             else:
-                mid = energyArray[row][indexOfColumnBelow]
-                right = energyArray[row][indexOfColumnBelow+1]
-                left = energyArray[row][indexOfColumnBelow-1]
+                mid = minCost[row][indexOfSeamBelow]
+                right = minCost[row][indexOfSeamBelow+1]
+                left = minCost[row][indexOfSeamBelow-1]
                 smallestValue = min(mid, right, left)
                 if smallestValue == mid:
-                    seam[row] = indexOfColumnBelow
+                    seam[row] = indexOfSeamBelow
                 elif smallestValue == right:
-                    seam[row] = indexOfColumnBelow + 1
+                    seam[row] = indexOfSeamBelow + 1
                 else:
-                    seam[row] = indexOfColumnBelow - 1
+                    seam[row] = indexOfSeamBelow - 1
 
         return seam
 
@@ -155,13 +155,13 @@ class SeamCarver(Picture):
                     Left = energyArray[row][column-1]
                     TopLeft = energyArray[row-1][column-1]
                     #determine the minimum and assign it
-                    AssignedValue = min(OnTop, TopLeft)
+                    AssignedValue = min(Left, TopLeft)
 
                 #middle! , check first if assigned value has laman cuz if meron then its an edge case
                 if AssignedValue != 0:
                     Left = energyArray[row][column-1]
-                    TopLeft = energyArray[row+1][column-1]
-                    BottomLeft = energyArray[row-1][column-1]
+                    TopLeft = energyArray[row-1][column-1]
+                    BottomLeft = energyArray[row+1][column-1]
                     AssignedValue = min(Left, BottomLeft, TopLeft)
                 
                 minCost[row][column] = AssignedValue + energyArray[row][column]
@@ -177,14 +177,49 @@ class SeamCarver(Picture):
         startingPoint = lastColumn.index(min(lastColumn))
 
          
-        
         # this "instantiates" the seam list, and then i decided to add na agad the startingPoint variable sa last element ng list
         seam = [0]*self.width()
         seam[self.width()-1] = startingPoint
         # similar logic to what you guys worked with, it ends at row 0 
         #IDG HOW THIS FOR LOOP WORKS THERES PROBABLY AN ERROR HERE >>>>>>>>>>>>>>>>>>>
-        for row in range(self.width()-2, -1, -1):
+        for column in range(self.width()-2, -1, -1):
         #need to fix laman ng for loop na to
+            indexOfSeamToTheRight = seam[column+1]
+            smallestValue = 0
+
+            #mid right and left are just essentially OnTop, TopRight, TopLeft, respectively.
+            #indexOfSeamToTheRight is just referring to index of seam below
+            if indexOfSeamToTheRight == 0:
+                mid = minCost[indexOfSeamToTheRight][column]
+                down = minCost[indexOfSeamToTheRight + 1][column]
+                smallestValue = min(mid, down)
+                if smallestValue == mid:
+                    seam[column] = indexOfSeamToTheRight
+                else:
+                    seam[column] = indexOfSeamToTheRight + 1
+
+            elif indexOfSeamToTheRight == self.height()-1:
+                mid = minCost[indexOfSeamToTheRight][column]
+                up = minCost[indexOfSeamToTheRight - 1][column]
+                smallestValue = min(mid, up)
+                if smallestValue == mid:
+                    seam[column] = indexOfSeamToTheRight
+                else:
+                    seam[column] = indexOfSeamToTheRight - 1
+            
+            else:
+                mid = minCost[indexOfSeamToTheRight][column]
+                up = minCost[indexOfSeamToTheRight - 1][column]
+                down = minCost[indexOfSeamToTheRight + 1][column]
+                smallestValue = min(mid, up, down)
+                if smallestValue == mid:
+                    seam[column] = indexOfSeamToTheRight
+                elif smallestValue == up:
+                    seam[column] = indexOfSeamToTheRight - 1
+                else:
+                    seam[column] = indexOfSeamToTheRight + 1
+
+        return seam
 
         raise NotImplementedError
 
