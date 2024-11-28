@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from picture import Picture
+from PIL import Image
 
 class SeamCarver(Picture):
     ## TO-DO: fill in the methods below
@@ -146,45 +147,30 @@ class SeamCarver(Picture):
         Return a sequence of indices representing the lowest-energy
         horizontal seam
         '''
-        #Steps:
-        #1 get original picture's dictionary
-        #2 transpose
-        #3 turn it back into a dictionary so it can be used ulit for picture
-        #4 call variable.findverticalseam()
-        #5 transpose the final list
-        # :D
+        #instantiate new dictionary for new set of pixels
+        newImage = {}
+        for row in range(self.height()):
+            for col in range(self.width()):
+                #switch the x to y and y to x to amke the pic flip in the y = x line
+                newImage[(row, col)] = self[(col, row)]
 
-        #1, i wanna get the orig dictionary and turn it into a 2d array so its easier to transpose.
-        pictureObject = Picture(self)
-        origDictionary = pictureObject #now we have the orig dictionary
-        width = origDictionary.width()
-        height = origDictionary.height()
+        #makes it easier for us to create our new image
+        width = self.height()
+        height = self.width()
 
-        #turn into 2d array
-        origArray = [[0] * width for _ in range(height)]
-        for row in range(height):
-            for column in range(width):
-                #if(row, column) in origDictionary:
-                origArray[row][column] = origDictionary[row, column]
-        
-        #2 transpose the 2dimensional array
-        n = len(origArray)
-        for i in range(n):
-            for j in range(i + 1, n):
-                origArray[i][j], origArray[j][i] = origArray[j][i], origArray[i][j]
-        #orig array has now been transposed
+        #new image created based on new dictionary
+        tempPic = Image.new('RGB', (width, height))
+        #new list of pixels based on newImage
+        pixels = [newImage[(x, y)] for y in range(height) for x in range(width)]
+        #put new pixels into old canvas
+        tempPic.putdata(pixels)
 
-        #3 turn it back into a dictionary
-        transposedDictionary = Picture(self)
-        for row in range(width):
-            for column in range(height):
-                transposedDictionary[column, row] = origArray[row][column]
-        #4 call variable.findverticalseam
-        seam = transposedDictionary.find_vertical_seam()
-        #5 ? is there even a need to transpose the final seam
+        #run seamCarver findvertical on the flipped image, giving the the horizontal seam
+        seamCarveClass = SeamCarver(tempPic)
+        seam = seamCarveClass.find_vertical_seam()
+
         return seam
-
-        transposedPic = Picture()
+    
         raise NotImplementedError
 
     def remove_vertical_seam(self, seam: list[int]):
@@ -212,12 +198,21 @@ class SeamCarver(Picture):
         '''
         Remove a horizontal seam from the picture
         '''
-        for x, y in seam:
-            for col in range(y, self.height()-1):
-                self.update((x, col), self.get((x, col+1)))
-            self.pop((x, self.height()-1))
+        if self.height() == 1:
+            raise SeamError("Cannot remove horizontal seam. Image only has a height of 1.")
+        elif len(seam) != self.width():
+            raise SeamError("Invalid seam width.")
+        for element in range(len(seam)-1):
+            difference = abs(seam[element] - seam[element+1])
+            if difference > 1:
+                raise SeamError("Invalid seam.") 
 
-        raise NotImplementedError
-
+        for col in range(self.width()):
+            seamRow = seam[col]
+            for row in range(self.height()-1, seamRow):
+                self[col, row] = self[col, row+1]
+            del self[col, self.height()-1]
+        self._height -= 1
+        
 class SeamError(Exception):
     pass
