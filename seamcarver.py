@@ -184,7 +184,7 @@ class SeamCarver(Picture):
         for element in range(len(seam)-1):
             difference = abs(seam[element] - seam[element+1])
             if difference > 1:
-                raise SeamError("Invalid seam.") 
+                raise SeamError("Invalid seam.")
 
         for row in range(self.height()):
             seamColumn = seam[row]
@@ -198,21 +198,27 @@ class SeamCarver(Picture):
         '''
         Remove a horizontal seam from the picture
         '''
-        if self.height() == 1:
-            raise SeamError("Cannot remove horizontal seam. Image only has a height of 1.")
-        elif len(seam) != self.width():
-            raise SeamError("Invalid seam width.")
-        for element in range(len(seam)-1):
-            difference = abs(seam[element] - seam[element+1])
-            if difference > 1:
-                raise SeamError("Invalid seam.") 
+        newImage = {}
+        for row in range(self.height()):
+            for col in range(self.width()):
+                newImage[(row, col)] = self[(col, row)]
 
-        for col in range(self.width()):
-            seamRow = seam[col]
-            for row in range(self.height()-1, seamRow):
-                self[col, row] = self[col, row+1]
-            del self[col, self.height()-1]
+        width = self.height()
+        height = self.width()
+
+        tempPic = Image.new('RGB', (width, height))
+        pixels = [newImage[(x, y)] for y in range(height) for x in range(width)]
+        tempPic.putdata(pixels)
+
+        seamCarveClass = SeamCarver(tempPic)
+        seamCarveClass.remove_vertical_seam(seam)
+
         self._height -= 1
+        self.clear()
+
+        for row in range(seamCarveClass.height()):
+            for col in range(seamCarveClass.width()):
+                self[(row, col)] = seamCarveClass[(col, row)]
         
 class SeamError(Exception):
     pass
