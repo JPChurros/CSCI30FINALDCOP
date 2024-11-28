@@ -198,6 +198,8 @@ class SeamCarver(Picture):
         '''
         Remove a horizontal seam from the picture
         '''
+
+        #basically the same as find_horizontal, where we transpose picture
         newImage = {}
         for row in range(self.height()):
             for col in range(self.width()):
@@ -211,11 +213,15 @@ class SeamCarver(Picture):
         tempPic.putdata(pixels)
 
         seamCarveClass = SeamCarver(tempPic)
+
+        #run remove vertical seam on transposed
         seamCarveClass.remove_vertical_seam(seam)
 
+        #edit the height to be the removed amount
         self._height -= 1
         self.clear()
 
+        #repopulate the image
         for row in range(seamCarveClass.height()):
             for col in range(seamCarveClass.width()):
                 self[(row, col)] = seamCarveClass[(col, row)]
