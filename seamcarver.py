@@ -186,11 +186,16 @@ class SeamCarver(Picture):
             if difference > 1:
                 raise SeamError("Invalid seam.")
 
+        #outer loop is row
         for row in range(self.height()):
+            #means that it will start from the column of the seam
             seamColumn = seam[row]
+            #then it shifts all columns to the left except for the last one
             for column in range(seamColumn, self.width()-1):
                 self[column, row] = self[column+1, row]
+            #then delete the last column 
             del self[self.width()-1, row]
+            #repeat until all the seams are gone
         self._width -= 1
         
 
