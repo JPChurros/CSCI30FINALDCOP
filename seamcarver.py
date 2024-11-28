@@ -8,10 +8,11 @@ class SeamCarver(Picture):
         '''
         Return the energy of pixel at column i and row j
         '''
-        if i < 0 or i >= self.width() or j < 0 or j >= self.height():
+        
+        if i < 0 or i >= self.width() or j < 0 or j >= self.height():       #error handling case 1: pixel is not part of image anymore
             raise IndexError("Pixel is out of bounds.")
 
-        if i-1 < 0: 
+        if i-1 < 0:                                                         #handling of the left and right pixels and their wrapping
             left_pixel = self[self.width()-1,j]
             right_pixel = self[i+1,j]
         elif i+1 >= self.width():
@@ -21,7 +22,7 @@ class SeamCarver(Picture):
             left_pixel = self[i-1,j]
             right_pixel = self[i+1,j]
 
-        if j-1 < 0:            
+        if j-1 < 0:                                                         #handling of top and bottom pixels and their wrapping            
             top_pixel = self[i,self.height()-1]
             bottom_pixel = self[i,j+1]
         elif j+1 >= self.height():
@@ -43,70 +44,50 @@ class SeamCarver(Picture):
 
         return (x_Delta + y_Delta)**0.5
 
-    def find_vertical_seam(self) -> list[int]: #Note, idk sometimes when to subtract one to set the size
+    def find_vertical_seam(self) -> list[int]: 
         '''
         Return a sequence of indices representing the lowest-energy
         vertical seam
         '''
-        energyArray = [[0] * self.width() for i in range(self.height())] #creates a 2dimensional energyArrayay of size width and height!
-        #idk if this may -1 for the width and shit ah.
-        for row in range(self.height()):
+        energyArray = [[0] * self.width() for i in range(self.height())]    #creates a 2dimensional array of size width and height!
+
+        for row in range(self.height()):                                    #populates the 2dimensional array with the corresponding energy for each ano
             for column in range(self.width()):
-                energyArray[row][column] = self.energy(column, row) #populates the 2dimensional energyArrayay with the corresponding energy for each ano.
-        #energyArrayay two
+                energyArray[row][column] = self.energy(column, row) 
         
-        minCost = [[0] * self.width() for i in range(self.height())]
-        #idk if this has -1 for the width or height bro
+
+        minCost = [[0] * self.width() for i in range(self.height())]        #creates 2d array to contain the minimum cost energies
         for row in range(self.height()):
             for column in range(self.width()):
-                #edge case for pinakataas
-                if row == 0:
+                if row == 0:                                                #edge case for topmost
                     minCost[0][column] = energyArray[0][column]
                 else:
-                    #edge case for left corner
-                    if column == 0:
+                    if column == 0:                                         #edge case for left corner
                         OnTop = minCost[row-1][column]
                         TopRight = minCost[row-1][column+1]
-                        #determine the minimum and assign it
-                        minCost[row][column] = energyArray[row][column] + min(OnTop, TopRight)
-                    #edge case for right corner idk if may minus one dito
-                    elif column == self.width()-1:
+                        minCost[row][column] = energyArray[row][column] + min(OnTop, TopRight)  #determine the minimum and assign it
+                    elif column == self.width()-1:                          #edge case for right corner 
                         OnTop = minCost[row-1][column]
                         TopLeft = minCost[row-1][column-1]
-                        #determine the minimum and assign it
-                        minCost[row][column] = energyArray[row][column] + min(OnTop, TopLeft)
+                        minCost[row][column] = energyArray[row][column] + min(OnTop, TopLeft)   #determine the minimum and assign it
                     else:
                         OnTop = minCost[row-1][column]
                         TopRight = minCost[row-1][column+1]
                         TopLeft = minCost[row-1][column-1]
-                        minCost[row][column] = energyArray[row][column] + min(OnTop,TopRight,TopLeft)
+                        minCost[row][column] = energyArray[row][column] + min(OnTop,TopRight,TopLeft)   #determine the minimum and assign it
 
-                # #middle! , check first if assigned value has laman cuz if meron then its an edge case
-                # if AssignedValue == 0:
-                #     OnTop = energyArray[row-1][column]
-                #     TopRight = energyArray[row-1][column+1]
-                #     TopLeft = energyArray[row-1][column-1]
-                #     AssignedValue = min(OnTop, TopRight, TopLeft)   
-                
-                # minCost[row][column] = AssignedValue + energyArray[row][column]
-        # this part gets the index of the smallest value sa last row sa minCost 2d array
-        lastRow = [0]*self.width()
+        lastRow = [0]*self.width()                                                  #code until line 92 is to find the minimum energy pixel of the final row
         rowCounter = 0
         while rowCounter < self.width():
             lastRow[rowCounter] = minCost[self.height()-1][rowCounter]
             rowCounter += 1
         startingPoint = lastRow.index(min(lastRow))
+        seam = [startingPoint]                                                      #we then create a list containing the index of the column of the pixel with lowest mincost
 
-        # this "instantiates" the seam list, and then i decided to add na agad the startingPoint variable sa last element ng list
+        for row in range(self.height()-2, -1, -1):                                  #range arguments are: starting value, bound, and step
+            indexOfSeamBelow = seam[-1]                                             #always get the item that is added last into the list to get the most recent index of the seam
+            smallestValue = 0                                                       #smallestValue will be used to determine whether the middle, left, or right pixel will be the next seam index
 
-        seam = [startingPoint]
-        # similar logic to what you guys worked with, it ends at row 0 
-        for row in range(self.height()-2, -1, -1):
-            indexOfSeamBelow = seam[-1]
-            smallestValue = 0
-
-            #mid right and left are just essentially OnTop, TopRight, TopLeft, respectively.
-            #indexOfSeamBelow is just referring to index of seam below
             if indexOfSeamBelow == 0:
                 mid = minCost[row][indexOfSeamBelow]
                 right = minCost[row][indexOfSeamBelow + 1]
@@ -137,47 +118,38 @@ class SeamCarver(Picture):
                 else:
                     seam.append(indexOfSeamBelow - 1)
 
-        seam.reverse()
-        return seam
-
-        raise NotImplementedError
+        seam.reverse()                                                                  #reversed at the end since the order of this was bottom up, and new values were appended so the first value in the index is the seam at the bottom.
+        return seam                                                         
 
     def find_horizontal_seam(self) -> list[int]:
         '''
         Return a sequence of indices representing the lowest-energy
         horizontal seam
         '''
-        #instantiate new dictionary for new set of pixels
-        newImage = {}
+        
+        newImage = {}                                                                   #instantiate new dictionary for new set of pixels
         for row in range(self.height()):
             for col in range(self.width()):
-                #switch the x to y and y to x to amke the pic flip in the y = x line
-                newImage[(row, col)] = self[(col, row)]
+                newImage[(row, col)] = self[(col, row)]                                 #switch the x to y and y to x to amke the pic flip in the y = x line
 
-        #makes it easier for us to create our new image
-        width = self.height()
+        width = self.height()                                                           #makes it easier for us to create our new image 
         height = self.width()
 
-        #new image created based on new dictionary
-        tempPic = Image.new('RGB', (width, height))
-        #new list of pixels based on newImage
-        pixels = [newImage[(x, y)] for y in range(height) for x in range(width)]
-        #put new pixels into old canvas
-        tempPic.putdata(pixels)
+        tempPic = Image.new('RGB', (width, height))                                     #new image created based on new dictionary
+        pixels = [newImage[(x, y)] for y in range(height) for x in range(width)]        #new list of pixels based on newImage
 
-        #run seamCarver findvertical on the flipped image, giving the the horizontal seam
-        seamCarveClass = SeamCarver(tempPic)
+        tempPic.putdata(pixels)                                                         #put new pixels into old canvas
+
+        seamCarveClass = SeamCarver(tempPic)                                            #run seamCarver findvertical on the flipped image, giving the the horizontal seam
         seam = seamCarveClass.find_vertical_seam()
 
         return seam
-    
-        raise NotImplementedError
 
     def remove_vertical_seam(self, seam: list[int]):
         '''
         Remove a vertical seam from the picture
         '''
-        if self.width() == 1:
+        if self.width() == 1:                                                           #error handling
             raise SeamError("Cannot remove vertical seam. Image only has a width of 1.")
         elif len(seam) != self.height():
             raise SeamError("Invalid seam length.")
@@ -186,17 +158,13 @@ class SeamCarver(Picture):
             if difference > 1:
                 raise SeamError("Invalid seam.")
 
-        #outer loop is row
         for row in range(self.height()):
-            #means that it will start from the column of the seam
-            seamColumn = seam[row]
-            #then it shifts all columns to the left except for the last one
+            seamColumn = seam[row]                                                      #means that it will start from the column of the seam
             for column in range(seamColumn, self.width()-1):
-                self[column, row] = self[column+1, row]
-            #then delete the last column 
-            del self[self.width()-1, row]
-            #repeat until all the seams are gone
-        self._width -= 1
+                self[column, row] = self[column+1, row]                                 #then it shifts all columns to the left except for the last one
+            del self[self.width()-1, row]                                               #then delete the last column 
+                                                                                        #repeat until all the seams are gone
+        self._width -= 1                                                                #then update width of image                    
         
 
     def remove_horizontal_seam(self, seam: list[int]):
@@ -204,8 +172,7 @@ class SeamCarver(Picture):
         Remove a horizontal seam from the picture
         '''
 
-        #basically the same as find_horizontal, where we transpose picture
-        newImage = {}
+        newImage = {}                                                                   #same as find_horizontal, where we transpose picture
         for row in range(self.height()):
             for col in range(self.width()):
                 newImage[(row, col)] = self[(col, row)]
@@ -219,15 +186,12 @@ class SeamCarver(Picture):
 
         seamCarveClass = SeamCarver(tempPic)
 
-        #run remove vertical seam on transposed
-        seamCarveClass.remove_vertical_seam(seam)
+        seamCarveClass.remove_vertical_seam(seam)                                       #run remove vertical seam on transposed
 
-        #edit the height to be the removed amount
-        self._height -= 1
+        self._height -= 1                                                               #edit the height 
         self.clear()
 
-        #repopulate the image
-        for row in range(seamCarveClass.height()):
+        for row in range(seamCarveClass.height()):                                      #repopulate the image
             for col in range(seamCarveClass.width()):
                 self[(row, col)] = seamCarveClass[(col, row)]
         
